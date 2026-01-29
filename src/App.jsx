@@ -1,30 +1,4 @@
-// import { BrowserRouter, Routes, Route } from "react-router-dom";
-// import McqRound from "./pages/McqRound";
-// import InterviewRound from "./pages/InterviewRound";
-// import HrInterviewRound from "./pages/HrInterviewRound";
-// import Home from "./pages/Home";
 
-// function App() {
-//   return (
-//     <BrowserRouter>
-//       <Routes>
-//         <Route path="/" element={<Home />} />
-//         <Route path="/mcq" element={<McqRound />} />
-
-//         {/* Technical Round */}
-//         <Route
-//           path="/technical"
-//           element={<InterviewRound title="Technical Interview Round" />}
-//         />
-
-//         {/* HR Round (ONLY Video + Audio) */}
-//         <Route path="/hr" element={<HrInterviewRound />} />
-//       </Routes>
-//     </BrowserRouter>
-//   );
-// }
-
-// export default App;
 
 // Meeting Link**********************************************
 import { BrowserRouter, Routes, Route } from "react-router-dom";
