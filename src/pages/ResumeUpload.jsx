@@ -73,9 +73,12 @@ const handleUpload = async () => {
       formData
     );
 
-    setMessage("Upload successful");
-    console.log(res.data);
-
+    // setMessage("Upload successful");
+    // console.log(res.data);
+ setMessage(res.data.message);
+      setTimeout(() => {
+        navigate("/paymentPage");
+      }, 1500);
   } catch (err) {
     console.error(err);
     setMessage(
