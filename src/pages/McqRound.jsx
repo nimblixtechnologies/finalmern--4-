@@ -58,48 +58,73 @@ const McqRound = () => {
   const handleOptionChange = (qid, option) =>
     setAnswers({ ...answers, [qid]: option });
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.phone) {
-      alert("❌ Required: Please fill in candidate details.");
-      return;
-    }
+  const nameRegex = /^[A-Za-z ]{3,}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneRegex = /^[6-9]\d{9}$/;
 
-    let score = 0;
-    currentMCQs.forEach((q) => {
-      if (answers[q.id] === q.correctAnswer) score++;
-    });
+  // 🔴 Validation
+  if (!form.name || !form.email || !form.phone) {
+    alert("❌ All fields are required");
+    return;
+  }
 
-    const payload = {
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      subject: subject.toUpperCase(),
-      score,
-      answers,
-      submittedAt: new Date().toLocaleString(),
-    };
+  if (!nameRegex.test(form.name.trim())) {
+    alert("❌ Enter a valid name (min 3 letters, alphabets only)");
+    return;
+  }
 
-    try {
-      // const res = await fetch("http://localhost:5000/send-mail", {
-      const res = await fetch("https://finalmern-backend.onrender.com/send-mail", {
+  if (!emailRegex.test(form.email.trim())) {
+    alert("❌ Enter a valid email address");
+    return;
+  }
+
+  if (!phoneRegex.test(form.phone.trim())) {
+    alert("❌ Enter a valid 10-digit mobile number");
+    return;
+  }
+
+  // ✅ Calculate score
+  let score = 0;
+  currentMCQs.forEach((q) => {
+    if (answers[q.id] === q.correctAnswer) score++;
+  });
+
+  const payload = {
+    name: form.name.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+    subject: subject.toUpperCase(),
+    score,
+    answers,
+    submittedAt: new Date().toLocaleString(),
+  };
+
+  try {
+    const res = await fetch(
+      "https://finalmern-backend.onrender.com/send-mail",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Mail failed");
-      alert(`✅ Assessment Submitted! | Email Sent.`);
-      setTimeout(() => {
-        navigate("/technical");
-      }, 500);
+      }
+    );
 
-      setAnswers({});
-      setForm({ name: "", email: "", phone: "" });
-    } catch (err) {
-      console.error(err);
-      alert(
-        "❌ Submission failed. Score recorded, but email could not be sent."
-      );
-    }
-  };
+    if (!res.ok) throw new Error("Mail failed");
+
+    alert("✅ Assessment Submitted! | Email Sent.");
+
+    setTimeout(() => {
+      navigate("/technical");
+    }, 500);
+
+    setAnswers({});
+    setForm({ name: "", email: "", phone: "" });
+  } catch (err) {
+    console.error(err);
+    alert("❌ Submission failed. Score saved but email not sent.");
+  }
+};
+
 
   return (
     <div style={pageStyles}>

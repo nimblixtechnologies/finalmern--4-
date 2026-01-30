@@ -15,10 +15,16 @@ const DigitalBoard = () => {
   };
 
   const handleSubmit = async () => {
+     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     if (!form.email) {
       alert("❌ Please enter email address");
       return;
     }
+ if (!emailRegex.test(form.email.trim())) {
+    alert("❌ Enter a valid email address");
+    return;
+  }
 
     if (!code.trim()) {
       alert("❌ Please write code on the digital board");
