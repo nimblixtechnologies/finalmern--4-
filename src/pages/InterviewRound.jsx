@@ -1,66 +1,248 @@
+// import React, { useEffect, useState } from "react";
+// import Webcam from "../components/Webcam";
+// import mcqData from "../data/mcqData";
+// import { startMedia, startScreenShare, stopMedia } from "../utils/media";
+// import DigitalBoard from "./DigitalBoard";
+// import ScreenRecorder from "./ScreenRecorder";
+// // import logo from "../assets/logo1.png";
+
+// const InterviewRound = ({ title = "Technical Interview Round" }) => {
+//   const [questions] = useState(mcqData.TechnicalInterview);
+//   const [stream, setStream] = useState(null);
+//   const [cameraOn, setCameraOn] = useState(true);
+//   const [micOn, setMicOn] = useState(true);
+//   const [isScreenSharing, setIsScreenSharing] = useState(false);
+//   const [openQuestionId, setOpenQuestionId] = useState(null);
+
+//   useEffect(() => {
+//     let activeStream;
+//     startMedia().then((s) => {
+//       activeStream = s;
+//       setStream(s);
+//     });
+
+//     return () => stopMedia(activeStream);
+//   }, []);
+
+//   const toggleCamera = () => {
+//     stream?.getVideoTracks().forEach((track) => {
+//       track.enabled = !track.enabled;
+//       setCameraOn(track.enabled);
+//     });
+//   };
+//   const toggleMic = () => {
+//     stream?.getAudioTracks().forEach((track) => {
+//       track.enabled = !track.enabled;
+//       setMicOn(track.enabled);
+//     });
+//   };
+
+//   const toggleScreenShare = async () => {
+//     if (!isScreenSharing) {
+//       stopMedia(stream);
+//       const screenStream = await startScreenShare();
+
+//       if (screenStream) {
+//         setStream(screenStream);
+//         setIsScreenSharing(true);
+//         screenStream.getVideoTracks()[0].onended = async () => {
+//           const camStream = await startMedia();
+//           setStream(camStream);
+//           setIsScreenSharing(false);
+//         };
+//       }
+//     } else {
+//       stopMedia(stream);
+//       const camStream = await startMedia();
+//       setStream(camStream);
+//       setIsScreenSharing(false);
+//     }
+//   };
+//   const endInterview = () => {
+//     stopMedia(stream);
+//     setStream(null);
+//     alert("Interview Ended");
+//   };
+
+//   const toggleQuestion = (id) => {
+//     setOpenQuestionId(openQuestionId === id ? null : id);
+//   };
+
+//   return (
+//     <div style={styles.page}>
+//       <div style={styles.container}>
+//         <div style={styles.leftPanel}>
+//           <div style={styles.header}>
+//             <h2 style={styles.title}>{title}</h2>
+//             <span style={styles.badge}>LIVE</span>
+//             <ScreenRecorder />
+//           </div>
+
+//           <div style={styles.webcamBox}>
+//             {stream ? (
+//               <Webcam stream={stream} />
+//             ) : (
+//               <p style={{ color: "#fff" }}>Camera Off</p>
+//             )}
+//           </div>
+
+//           <div style={styles.controls}>
+//             <button onClick={toggleCamera} style={styles.controlBtn}>
+//               {cameraOn ? "Camera OFF" : "Camera ON"}
+//             </button>
+
+//             <button onClick={toggleMic} style={styles.controlBtn}>
+//               {micOn ? "Mic OFF" : "Mic ON"}
+//             </button>
+
+//             <button onClick={toggleScreenShare} style={styles.controlBtn}>
+//               {isScreenSharing ? "Stop Share" : "Share Screen"}
+//             </button>
+//           </div>
+
+//           <button onClick={endInterview} style={styles.endBtn}>
+//             End Interview
+//           </button>
+//         </div>
+//         <div style={styles.rightPanel}>
+//           <h3 style={styles.questionTitle}>Technical Interview Questions</h3>
+
+//           <div style={styles.questionList}>
+//             {questions.map((q, index) => (
+//               <div key={q.id} style={styles.questionCard}>
+//                 <div
+//                   style={styles.questionHeader}
+//                   onClick={() => toggleQuestion(q.id)}
+//                 >
+//                   <p style={styles.questionText}>
+//                     {index + 1}. {q.question}
+//                   </p>
+//                   <span style={styles.arrow}>
+//                     {openQuestionId === q.id ? "▲" : "▼"}
+//                   </span>
+//                 </div>
+
+//                 {openQuestionId === q.id && (
+//                   <div style={styles.dropdownContent}>
+//                     <p style={styles.description}>{q.description}</p>
+
+//                     {q.examples?.map((ex, i) => (
+//                       <div key={i} style={styles.exampleBox}>
+//                         <p>
+//                           <strong>Input:</strong> {ex.input}
+//                         </p>
+//                         <p>
+//                           <strong>Output:</strong> {ex.output}
+//                         </p>
+//                       </div>
+//                     ))}
+//                   </div>
+//                 )}
+//               </div>
+//             ))}
+//           </div>
+
+//           <DigitalBoard />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default InterviewRound;
 import React, { useEffect, useState } from "react";
 import Webcam from "../components/Webcam";
 import mcqData from "../data/mcqData";
-import { startMedia, startScreenShare, stopMedia } from "../utils/media";
+import {
+  startMedia,
+  startScreenShare,
+  stopMedia,
+} from "../utils/media";
 import DigitalBoard from "./DigitalBoard";
 import ScreenRecorder from "./ScreenRecorder";
-// import logo from "../assets/logo1.png";
 
 const InterviewRound = ({ title = "Technical Interview Round" }) => {
   const [questions] = useState(mcqData.TechnicalInterview);
-  const [stream, setStream] = useState(null);
+
+  // 🔥 SEPARATE STREAMS
+  const [cameraStream, setCameraStream] = useState(null);
+  const [screenStream, setScreenStream] = useState(null);
+
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [openQuestionId, setOpenQuestionId] = useState(null);
 
+  /* =========================
+     START CAMERA + MIC (ONCE)
+  ========================= */
   useEffect(() => {
-    let activeStream;
+    let cam;
+
     startMedia().then((s) => {
-      activeStream = s;
-      setStream(s);
+      cam = s;
+      setCameraStream(s);
     });
 
-    return () => stopMedia(activeStream);
+    return () => {
+      stopMedia(cam);
+      stopMedia(screenStream);
+    };
+    // eslint-disable-next-line
   }, []);
 
+  /* =========================
+     TOGGLE CAMERA
+  ========================= */
   const toggleCamera = () => {
-    stream?.getVideoTracks().forEach((track) => {
+    cameraStream?.getVideoTracks().forEach((track) => {
       track.enabled = !track.enabled;
       setCameraOn(track.enabled);
     });
   };
+
+  /* =========================
+     TOGGLE MIC
+  ========================= */
   const toggleMic = () => {
-    stream?.getAudioTracks().forEach((track) => {
+    cameraStream?.getAudioTracks().forEach((track) => {
       track.enabled = !track.enabled;
       setMicOn(track.enabled);
     });
   };
 
+  /* =========================
+     SCREEN SHARE (SAFE)
+  ========================= */
   const toggleScreenShare = async () => {
     if (!isScreenSharing) {
-      stopMedia(stream);
-      const screenStream = await startScreenShare();
+      const screen = await startScreenShare();
+      if (!screen) return;
 
-      if (screenStream) {
-        setStream(screenStream);
-        setIsScreenSharing(true);
-        screenStream.getVideoTracks()[0].onended = async () => {
-          const camStream = await startMedia();
-          setStream(camStream);
-          setIsScreenSharing(false);
-        };
-      }
+      setScreenStream(screen);
+      setIsScreenSharing(true);
+
+      // Auto stop when user stops sharing
+      screen.getVideoTracks()[0].onended = () => {
+        stopMedia(screen);
+        setScreenStream(null);
+        setIsScreenSharing(false);
+      };
     } else {
-      stopMedia(stream);
-      const camStream = await startMedia();
-      setStream(camStream);
+      stopMedia(screenStream);
+      setScreenStream(null);
       setIsScreenSharing(false);
     }
   };
+
+  /* =========================
+     END INTERVIEW
+  ========================= */
   const endInterview = () => {
-    stopMedia(stream);
-    setStream(null);
+    stopMedia(cameraStream);
+    stopMedia(screenStream);
+    setCameraStream(null);
+    setScreenStream(null);
     alert("Interview Ended");
   };
 
@@ -68,6 +250,9 @@ const InterviewRound = ({ title = "Technical Interview Round" }) => {
     setOpenQuestionId(openQuestionId === id ? null : id);
   };
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <div style={styles.page}>
       <div style={styles.container}>
@@ -75,12 +260,15 @@ const InterviewRound = ({ title = "Technical Interview Round" }) => {
           <div style={styles.header}>
             <h2 style={styles.title}>{title}</h2>
             <span style={styles.badge}>LIVE</span>
-            <ScreenRecorder />
+            <ScreenRecorder
+              cameraStream={cameraStream}
+              screenStream={screenStream}
+            />
           </div>
 
           <div style={styles.webcamBox}>
-            {stream ? (
-              <Webcam stream={stream} />
+            {cameraStream ? (
+              <Webcam stream={cameraStream} />
             ) : (
               <p style={{ color: "#fff" }}>Camera Off</p>
             )}
@@ -104,8 +292,11 @@ const InterviewRound = ({ title = "Technical Interview Round" }) => {
             End Interview
           </button>
         </div>
+
         <div style={styles.rightPanel}>
-          <h3 style={styles.questionTitle}>Technical Interview Questions</h3>
+          <h3 style={styles.questionTitle}>
+            Technical Interview Questions
+          </h3>
 
           <div style={styles.questionList}>
             {questions.map((q, index) => (
