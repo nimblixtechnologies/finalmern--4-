@@ -121,10 +121,10 @@ const ScreenRecorder = ({ cameraStream, screenStream }) => {
         return;
       }
 
-      // 🔥 MERGE STREAMS (SCREEN VIDEO + MIC AUDIO)
+      // 🔥 SCREEN VIDEO + MIC AUDIO
       const combinedStream = new MediaStream([
-        ...screenStream.getVideoTracks(),     // screen video
-        ...cameraStream.getAudioTracks(),     // mic audio
+        ...screenStream.getVideoTracks(),
+        ...cameraStream.getAudioTracks(),
       ]);
 
       const mediaRecorder = new MediaRecorder(combinedStream, {
@@ -144,7 +144,7 @@ const ScreenRecorder = ({ cameraStream, screenStream }) => {
       mediaRecorder.start();
       setIsRecording(true);
 
-      console.log("🔴 Recording Started (Screen + Mic)");
+      console.log("🔴 Recording Started");
     } catch (err) {
       console.error("Recording failed", err);
       alert("Recording failed");
@@ -156,31 +156,22 @@ const ScreenRecorder = ({ cameraStream, screenStream }) => {
   ========================= */
   const stopRecording = () => {
     if (!mediaRecorderRef.current) return;
-
     mediaRecorderRef.current.stop();
     setIsRecording(false);
-
-    console.log("⏹ Recording Stopped");
   };
 
   /* =========================
      UPLOAD RECORDING
   ========================= */
   const handleUpload = async () => {
-    const blob = new Blob(chunksRef.current, {
-      type: "video/webm",
-    });
-
+    const blob = new Blob(chunksRef.current, { type: "video/webm" });
     chunksRef.current = [];
 
     const formData = new FormData();
     formData.append("recording", blob);
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/recordings",
-        formData
-      );
+      await axios.post("http://localhost:5000/api/recordings", formData);
       alert("✅ Recording uploaded successfully");
     } catch (err) {
       console.error("Upload failed", err);

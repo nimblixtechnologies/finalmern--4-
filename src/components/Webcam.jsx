@@ -37,7 +37,7 @@ const Webcam = ({ stream }) => {
       ref={videoRef}
       autoPlay
       playsInline
-      muted   // prevent echo
+      muted
       style={{
         width: "100%",
         height: "100%",

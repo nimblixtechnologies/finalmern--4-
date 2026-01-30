@@ -153,6 +153,10 @@
 import React, { useEffect, useState } from "react";
 import Webcam from "../components/Webcam";
 import mcqData from "../data/mcqData";
+import ScreenRecorder from "../components/ScreenRecorder";
+
+
+
 import {
   startMedia,
   startScreenShare,

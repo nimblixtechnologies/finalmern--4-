@@ -26,21 +26,29 @@
 //   if (!stream) return;
 //   stream.getTracks().forEach((track) => track.stop());
 // };
-export const startCameraMic = async () => {
+// src/utils/media.jsx
+
+export const startMedia = async () => {
   return await navigator.mediaDevices.getUserMedia({
     video: true,
     audio: true,
   });
 };
 
+
+export const startCameraMic = startMedia;
+
 export const startScreenShare = async () => {
   return await navigator.mediaDevices.getDisplayMedia({
     video: true,
-    audio: true, // system audio
+    audio: true,
   });
 };
 
-export const stopStream = (stream) => {
+export const stopMedia = (stream) => {
   if (!stream) return;
   stream.getTracks().forEach((t) => t.stop());
 };
+
+// (Optional alias)
+export const stopStream = stopMedia;
